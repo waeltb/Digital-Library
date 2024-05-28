@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  formationdb:
+    image: mariadb:latest
+    container_name: mariadb_formation
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_USER: adminer
+      MARIADB_PASSWORD: root1
+      MARIADB_DATABASE: course
+    ports:
+      - '3308:3307'
+    volumes:
+      - db_formation_data:/var/lib/mysql
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb
+    restart: always
+    ports:
+      - '8087:8080'
+volumes:
+
+  db_formation_data:
