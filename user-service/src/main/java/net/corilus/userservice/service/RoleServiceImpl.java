@@ -30,34 +30,35 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role getRole(String roleName) {
         Keycloak k = KeycloakConfig.getInstance();
-        return mapRole(k.realm("pfe").roles().get(roleName).toRepresentation());
+        return mapRole(k.realm("corilus").roles().get(roleName).toRepresentation());
     }
 
     @Override
     public void createRole(Role role) {
         RoleRepresentation roleRepresentation=mapRoleRep(role);
         Keycloak k = KeycloakConfig.getInstance();
-        k.realm("pfe").roles().create(roleRepresentation);
+        k.realm("corilus").roles().create(roleRepresentation);
+        System.out.println("Role created");
     }
 
     @Override
     public void updateRole(Role role, String roleName) {
         RoleRepresentation roleRepresentation=mapRoleRep(role);
         Keycloak k = KeycloakConfig.getInstance();
-        k.realm("pfe").roles().get(roleName).update(roleRepresentation);
+        k.realm("corilus").roles().get(roleName).update(roleRepresentation);
     }
 
     @Override
     public void deleteRole(String roleName) {
         Keycloak k = KeycloakConfig.getInstance();
-        k.realm("pfe").roles().deleteRole(roleName);
+        k.realm("corilus").roles().deleteRole(roleName);
     }
 
     @Override
     public void assignRole(String userId, String roleName) {
         Keycloak k = KeycloakConfig.getInstance();
-        UserResource userResource =k.realm("pfe").users().get(userId);
-        RolesResource rolesResource=k.realm("pfe").roles();
+        UserResource userResource =k.realm("corilus").users().get(userId);
+        RolesResource rolesResource=k.realm("corilus").roles();
         RoleRepresentation representation =rolesResource.get(roleName).toRepresentation();
         userResource.roles().realmLevel().add(Collections.singletonList(representation));
     }

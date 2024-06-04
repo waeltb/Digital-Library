@@ -39,10 +39,6 @@ public class UserController {
             return new ResponseEntity<>("An unexpected error occurred try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-
-
-
-
     }
     @PutMapping("/updateUser/{id}")
     public String updateUser(@PathVariable("id") String id,@RequestBody UserDto user){

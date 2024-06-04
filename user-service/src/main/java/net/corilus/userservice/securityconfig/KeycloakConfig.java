@@ -20,12 +20,12 @@ public class KeycloakConfig {
 
             keycloak = KeycloakBuilder.builder()
                     .serverUrl("http://localhost:8080/")
-                    .realm("pfe")
+                    .realm("corilus")
                     .grantType(OAuth2Constants.PASSWORD)
                     .username("super-admin")
                     .password("superadmin")
                     .clientId("login-app")
-                    .clientSecret("4NurRgfPV88PKKi9PqfOeuEja2WeaKth")
+                    .clientSecret("XeZM5aBXDTrdn6eqeR0TUhZRSTlibOF1")
                     .build();
         }
         return keycloak;
