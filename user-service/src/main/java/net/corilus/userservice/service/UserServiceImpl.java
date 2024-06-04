@@ -4,16 +4,14 @@ package net.corilus.userservice.service;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import net.corilus.userservice.dto.UserDto;
 import net.corilus.userservice.exception.EmailExistsExecption;
-
 import net.corilus.userservice.securityconfig.KeycloakConfig;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.common.util.CollectionUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.keycloak.representations.idm.UserRepresentation;
 
@@ -26,11 +24,12 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
-
+@Autowired
+     RoleServiceImpl roleService;
 
     @Override
     public String createUser(UserDto userDto) {
+         String user ="user";
         try {
             UserRepresentation userRep= mapUserRep(userDto);
             Keycloak keycloak = KeycloakConfig.getInstance();
@@ -41,10 +40,14 @@ public class UserServiceImpl implements UserService {
                 throw new EmailExistsExecption("username or email already exists");
             }
             Response response = keycloak.realm("pfe").users().create(userRep);
+
+
             if (response.getStatus() != 201) {
                 throw new RuntimeException("Failed to create user");
             }
             String userId = CreatedResponseUtil.getCreatedId(response);
+            roleService.getRole(user);
+            roleService.assignRole(userId,user);
             UserResource userResource = keycloak.realm("pfe").users().get(userId);
             userResource.sendVerifyEmail();
             return "User created";
@@ -53,14 +56,6 @@ public class UserServiceImpl implements UserService {
         catch (RuntimeException e){
             throw new RuntimeException(e.getMessage());
         }
-
-
-       /* if(!CollectionUtils.isEmpty(representationList)){
-            UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation -> Objects.equals(false, userRepresentation.isEmailVerified())).findFirst().orElse(null);
-            assert userRepresentation1 != null;
-            emailverification(userRepresentation1.getId());
-        }*/
-
 
     }
 
@@ -90,7 +85,8 @@ public class UserServiceImpl implements UserService {
         Keycloak k = KeycloakConfig.getInstance();
         k.realm("pfe").users().delete(id);
     }
-    private UserRepresentation mapUserRep(UserDto userDto){
+    @Override
+    public UserRepresentation mapUserRep(UserDto userDto){
 
             UserRepresentation userRep = new UserRepresentation();
             userRep.setUsername(userDto.getUsername());
@@ -99,6 +95,7 @@ public class UserServiceImpl implements UserService {
             userRep.setEmail(userDto.getEmail());
             userRep.setEnabled(true);
             userRep.setEmailVerified(false);
+
             List<CredentialRepresentation> creds = new ArrayList<>();
             CredentialRepresentation cred = new CredentialRepresentation();
             cred.setTemporary(false);
@@ -114,7 +111,8 @@ public class UserServiceImpl implements UserService {
 
 
     }
-    private List<UserDto> mapUsers(List<UserRepresentation> userRepresentations){
+    @Override
+    public List<UserDto> mapUsers(List<UserRepresentation> userRepresentations){
         List<UserDto> users= new ArrayList<>();
         if (CollectionUtil.isNotEmpty(userRepresentations)){
             userRepresentations.forEach(userRep->{
@@ -123,7 +121,8 @@ public class UserServiceImpl implements UserService {
         }
         return users;
     }
-    private UserDto mapUser(UserRepresentation userRep){
+    @Override
+    public UserDto mapUser(UserRepresentation userRep){
         UserDto user=new UserDto();
         user.setFirstName(userRep.getFirstName());
         user.setLastName(userRep.getLastName());
@@ -131,13 +130,32 @@ public class UserServiceImpl implements UserService {
         user.setUsername(userRep.getUsername());
         return user;
     }
-    @Override
-    public void emailverification(String userId){
-        Keycloak k = KeycloakConfig.getInstance();
-      UsersResource usersResource=  k.realm("pfe").users();
-      usersResource.get(userId).sendVerifyEmail();
-    }
 
+@Override
+public void forgotPassword(String email) {
+    Keycloak keycloak = KeycloakConfig.getInstance();
+    List<UserRepresentation> emailRepresentations = keycloak.realm("pfe").users().searchByEmail(email,true);
+    System.out.println("********test0******** "+emailRepresentations);
+    if (!emailRepresentations.isEmpty()) {
+        UserRepresentation userRepresentation = emailRepresentations.get(0); // Get the first user
+        System.out.println("********test1******** "+userRepresentation);
+
+        try {
+            UserResource userResource = keycloak.realm("pfe").users().get(userRepresentation.getId());
+            List<String> actions = new ArrayList<>();
+            actions.add("UPDATE_PASSWORD");
+            userResource.executeActionsEmail(actions);
+
+            System.out.println("Password reset email sent successfully.");
+        } catch (Exception e) {
+            System.err.println("Error resetting password: " + e.getMessage());
+            throw new RuntimeException("Failed to reset password.");
+        }
+    } else {
+        System.err.println("User with username '" + email + "' not found.");
+        throw new RuntimeException("User not found.");
+    }
+}
 
 
 

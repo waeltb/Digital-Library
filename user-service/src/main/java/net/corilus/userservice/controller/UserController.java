@@ -62,4 +62,8 @@ public class UserController {
         userService.deleteUser(id);
         return "supprimer avec succes";
     }
+    @PutMapping("/{email}/forgot-password")
+    public void forgotPassword(@PathVariable("email") String email){
+        userService.forgotPassword(email);
+    }
 }
