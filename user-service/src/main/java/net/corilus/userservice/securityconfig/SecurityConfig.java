@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableWebSecurity
@@ -23,7 +24,7 @@ public class SecurityConfig {
                 // .cors(Customizer.withDefaults())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(a->a.requestMatchers("/User/**","/azure","/role/**").permitAll())
+                .authorizeHttpRequests(a->a.requestMatchers("/User/addUser","/User/test-post","/azure","/role/**").permitAll())
                 .authorizeHttpRequests(a->a.anyRequest().authenticated())
                 .oauth2ResourceServer(ors->
                         ors.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))
@@ -35,6 +36,10 @@ public class SecurityConfig {
                 new DefaultMethodSecurityExpressionHandler();
         defaultMethodSecurityExpressionHandler.setDefaultRolePrefix("");
         return defaultMethodSecurityExpressionHandler;
+    }
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
 

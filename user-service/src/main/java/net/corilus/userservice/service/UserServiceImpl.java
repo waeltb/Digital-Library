@@ -4,6 +4,7 @@ package net.corilus.userservice.service;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.UserDto;
 import net.corilus.userservice.exception.EmailExistsExecption;
 import net.corilus.userservice.securityconfig.KeycloakConfig;
@@ -14,9 +15,10 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.keycloak.representations.idm.UserRepresentation;
-
+import org.springframework.http.*;
 
 import org.keycloak.admin.client.Keycloak;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -26,6 +28,33 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
 @Autowired
      RoleServiceImpl roleService;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Override
+    public String login(AuthenticationRequest authenticationRequest) {
+
+        // Créez les en-têtes de la requête
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        // Créez le corps de la requête
+        String body = "grant_type=password&username=" + authenticationRequest.getUsername() + "&password=" + authenticationRequest.getPassword() +
+                "&client_id=login-app&client_secret=XeZM5aBXDTrdn6eqeR0TUhZRSTlibOF1";
+        // Créez l'objet HttpEntity avec les en-têtes et le corps
+        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+        // Envoyez la requête POST
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                "http://localhost:8080/realms/corilus/protocol/openid-connect/token",
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+
+        // Récupérez la réponse
+        String responseBody = responseEntity.getBody();
+
+        return responseBody;
+    }
 
     @Override
     public String createUser(UserDto userDto) {
@@ -57,6 +86,37 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException(e.getMessage());
         }
 
+    }
+
+    @Override
+    public String createExpert(UserDto userDto) {
+        String user ="expert";
+        try {
+            UserRepresentation userRep= mapUserRep(userDto);
+            Keycloak keycloak = KeycloakConfig.getInstance();
+            List<UserRepresentation> usernameRepresentations = keycloak.realm("corilus").users().searchByUsername(userDto.getUsername(),true);
+            List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(userDto.getEmail(),true);
+
+            if(!(usernameRepresentations.isEmpty() && emailRepresentations.isEmpty())){
+                throw new EmailExistsExecption("username or email already exists");
+            }
+            Response response = keycloak.realm("corilus").users().create(userRep);
+
+
+            if (response.getStatus() != 201) {
+                throw new RuntimeException("Failed to create Expert");
+            }
+            String userId = CreatedResponseUtil.getCreatedId(response);
+            roleService.getRole(user);
+            roleService.assignRole(userId,user);
+            UserResource userResource = keycloak.realm("corilus").users().get(userId);
+            userResource.sendVerifyEmail();
+            return "Expert created";
+
+        }
+        catch (RuntimeException e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -132,9 +192,8 @@ public class UserServiceImpl implements UserService {
         user.setUsername(userRep.getUsername());
         return user;
     }
-
-@Override
-public void forgotPassword(String email) {
+    @Override
+    public void forgotPassword(String email) {
     Keycloak keycloak = KeycloakConfig.getInstance();
     List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(email,true);
     System.out.println("********test0******** "+emailRepresentations);

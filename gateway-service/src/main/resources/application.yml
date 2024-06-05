@@ -1,9 +1,37 @@
+server:
+  servlet:
+    context-path: /
+  port: 9056
+
 spring:
+  application:
+    name: API-GATEWAY
+  profiles:
+    active:
+      - default
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       routes:
-        - id: user-service
-          uri: http://localhost:1998
+        - id: USER-SERVICE
+          uri: lb://user-service
           predicates:
-            - Path=/User/**
+            - Path= /**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
 

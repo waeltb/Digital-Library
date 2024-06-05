@@ -3,14 +3,13 @@ package net.corilus.userservice.controller;
 
 
 import jakarta.validation.Valid;
+import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.UserDto;
 import net.corilus.userservice.exception.EmailExistsExecption;
 import net.corilus.userservice.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSendException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,11 +22,33 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserServiceImpl userService ;
+    @PostMapping("/test-post")
+    public ResponseEntity<String> testPost(@RequestBody @Valid AuthenticationRequest authenticationRequest) {
+        String response = userService.login(authenticationRequest);
+        return ResponseEntity.ok(response);
+    }
     @PostMapping("/addUser")
     public ResponseEntity<?> adduser(  @RequestBody @Valid UserDto userDto){
 
         try {
             return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
+        }
+        catch (EmailExistsExecption e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);//409
+        }
+        catch (Exception e) {
+            System.out.println("test error in exception");
+            System.out.println(e.getClass().getName());
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("An unexpected error occurred try again", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+    @PostMapping("/addexpert")
+    public ResponseEntity<?> addexpert(  @RequestBody @Valid UserDto userDto){
+
+        try {
+            return new ResponseEntity<>(userService.createExpert(userDto), HttpStatus.CREATED);
         }
         catch (EmailExistsExecption e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);//409
