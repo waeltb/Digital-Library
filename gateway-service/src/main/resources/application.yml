@@ -18,6 +18,10 @@ spring:
           uri: lb://user-service
           predicates:
             - Path= /**
+        - id: COURSE-SERVICE
+          uri: lb://user-service
+          predicates:
+            - Path= /**
       globalcors:
         cors-configurations:
           '[/**]':
