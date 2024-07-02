@@ -4,9 +4,11 @@ import net.corilus.courseservice.dto.Container;
 import net.corilus.courseservice.entity.Course;
 import net.corilus.courseservice.repository.CourseRepository;
 import net.corilus.courseservice.service.AzureBlobStorageImpl;
+import net.corilus.courseservice.service.CourseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -14,6 +16,8 @@ import java.util.Date;
 @RestController
 @RequestMapping("/test")
 public class Test {
+    @Autowired
+    CourseServiceImpl courseService;
     @Autowired
     CourseRepository courseRepository ;
     @Autowired
@@ -35,10 +39,11 @@ public class Test {
         courseRepository.save(course1);
     return "succes";
     }
-    @PostMapping("/addContainer")
-    public String addContainer(@RequestBody Container container){
-
-        azureBlobStorage.createContainer(container);
+    @PostMapping("/create")
+    public String createCourse(@RequestParam("title") String title,
+                               @RequestParam("description") String description,
+                               @RequestParam("image") MultipartFile image) {
+        courseService.createCourse(title, description, image);
         return "ajout avec succes";
     }
 }

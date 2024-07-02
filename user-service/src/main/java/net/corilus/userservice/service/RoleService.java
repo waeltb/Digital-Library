@@ -2,20 +2,21 @@ package net.corilus.userservice.service;
 
 
 
-import net.corilus.userservice.dto.Role;
+
+import net.corilus.userservice.dto.RoleDto;
 
 import java.util.List;
 
 public interface RoleService {
 
 
-    List<Role> getRoles();
+    List<RoleDto> getRoles();
 
-    Role getRole( String roleName);
+    RoleDto getRole( String roleName);
 
-    void createRole( Role role);
+    void createRole( RoleDto role);
 
-    void updateRole(Role role ,String roleName);
+    void updateRole(RoleDto role ,String roleName);
 
     void deleteRole(String roleName);
 

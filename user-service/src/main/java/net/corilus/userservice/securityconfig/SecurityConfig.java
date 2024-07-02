@@ -24,7 +24,7 @@ public class SecurityConfig {
                 // .cors(Customizer.withDefaults())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(a->a.requestMatchers("/User/addUser","/User/test-post","/azure","/role/**").permitAll())
+                .authorizeHttpRequests(a->a.requestMatchers("/User/**","/User/test-post","/azure","/role/**","/speciality/**").permitAll())
                 .authorizeHttpRequests(a->a.anyRequest().authenticated())
                 .oauth2ResourceServer(ors->
                         ors.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))

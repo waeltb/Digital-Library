@@ -1,35 +1,53 @@
 package net.corilus.userservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+import java.util.Date;
+import java.util.List;
 
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.io.Serializable;
-import java.util.Collection;
-
-
-
-@Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class User  {
+@Getter
+@Setter
+@Builder
+public class User {
+    @Valid
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id ;
+    @NotBlank(message = "firstName is required and cannot be blank.")
+    @Size(min=3,max = 25,message = "firstName length min is 3 and max is 25")
     private String firstName;
+    @NotBlank(message = "lastName is required and cannot be blank.")
+    @Size(min=3,max = 25,message = "lastName  length min is 3 and max is 25")
     private String lastName;
+    @Email(message = "inavalid mail format")
+    @NotBlank(message = "email is required and cannot be blank.")
     private String email;
-    private String supplierName;
-    private String companyName;
+    @NotBlank(message = " username is required and cannot be blank.")
+    @Size(min=3,max = 25,message = " username length min is 3 and max is 25")
+    private String username;
+    @Size(min = 8,max = 22,message = "password should be min 8 caracters and 22 caracters")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$", message = "Password must contain at least one lowercase letter, one uppercase letter, and one number.")
     private String password;
     private String mobileNumber;
-    private Boolean nonLocked;
-    private Boolean enabled;
-    private String photoProfile;
-    private Collection<? extends GrantedAuthority> authorities;
+    private Date availabilityDate ;
+    @ManyToOne
+    private Role role ;
+    @OneToMany(mappedBy = "user")
+    private List<Leave> leaveList ;
+    @ManyToOne
+    private Speciality speciality ;
+
 
 
 

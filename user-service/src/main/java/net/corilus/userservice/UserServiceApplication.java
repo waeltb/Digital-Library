@@ -6,9 +6,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableTransactionManagement
+
 public class UserServiceApplication {
 
     public static void main(String[] args) {
@@ -19,9 +22,7 @@ public class UserServiceApplication {
     public FilterRegistrationBean<IpFilter> ipFilter() {
         FilterRegistrationBean<IpFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new IpFilter());
-        registrationBean.addUrlPatterns("/User/*");
+        registrationBean.addUrlPatterns("/speciality/*","/User/*");
         return registrationBean;
     }
-
-
 }

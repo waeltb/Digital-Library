@@ -20,6 +20,7 @@ import java.util.List;
 @Validated
 @RequestMapping("/User")
 public class UserController {
+
     @Autowired
     UserServiceImpl userService ;
     @PostMapping("/test-post")
@@ -44,11 +45,11 @@ public class UserController {
         }
 
     }
-    @PostMapping("/addexpert")
-    public ResponseEntity<?> addexpert(  @RequestBody @Valid UserDto userDto){
+        @PostMapping("/addexpert/{specialityName}")
+    public ResponseEntity<?> addexpert(  @RequestBody @Valid UserDto userDto,@PathVariable("specialityName") String specialityName){
 
         try {
-            return new ResponseEntity<>(userService.createExpert(userDto), HttpStatus.CREATED);
+            return new ResponseEntity<>(userService.createExpert(userDto,specialityName), HttpStatus.CREATED);
         }
         catch (EmailExistsExecption e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);//409
@@ -83,4 +84,6 @@ public class UserController {
     public void forgotPassword(@PathVariable("email") String email){
         userService.forgotPassword(email);
     }
+
+
 }

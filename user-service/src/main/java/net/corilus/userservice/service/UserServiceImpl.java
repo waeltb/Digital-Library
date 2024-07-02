@@ -5,8 +5,14 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.corilus.userservice.dto.AuthenticationRequest;
+import net.corilus.userservice.dto.ImmutableUserDto;
+import net.corilus.userservice.dto.SpecialityDto;
 import net.corilus.userservice.dto.UserDto;
 import net.corilus.userservice.exception.EmailExistsExecption;
+import net.corilus.userservice.model.Speciality;
+import net.corilus.userservice.model.User;
+import net.corilus.userservice.repository.SpecialityRepository;
+import net.corilus.userservice.repository.UserRepository;
 import net.corilus.userservice.securityconfig.KeycloakConfig;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.UserResource;
@@ -26,10 +32,15 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
 @Autowired
      RoleServiceImpl roleService;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    SpecialityRepository specialityRepository;
 
     @Override
     public String login(AuthenticationRequest authenticationRequest) {
@@ -62,8 +73,8 @@ public class UserServiceImpl implements UserService {
         try {
             UserRepresentation userRep= mapUserRep(userDto);
             Keycloak keycloak = KeycloakConfig.getInstance();
-            List<UserRepresentation> usernameRepresentations = keycloak.realm("corilus").users().searchByUsername(userDto.getUsername(),true);
-            List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(userDto.getEmail(),true);
+            List<UserRepresentation> usernameRepresentations = keycloak.realm("corilus").users().searchByUsername(userDto.username(),true);
+            List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(userDto.email(),true);
 
             if(!(usernameRepresentations.isEmpty() && emailRepresentations.isEmpty())){
                 throw new EmailExistsExecption("username or email already exists");
@@ -89,16 +100,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String createExpert(UserDto userDto) {
+    public String createExpert(UserDto userDto,String specialityName) {
         String user ="expert";
         try {
             UserRepresentation userRep= mapUserRep(userDto);
             Keycloak keycloak = KeycloakConfig.getInstance();
-            List<UserRepresentation> usernameRepresentations = keycloak.realm("corilus").users().searchByUsername(userDto.getUsername(),true);
-            List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(userDto.getEmail(),true);
+            List<UserRepresentation> usernameRepresentations = keycloak.realm("corilus").users().searchByUsername(userDto.username(),true);
+            List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(userDto.email(),true);
 
             if(!(usernameRepresentations.isEmpty() && emailRepresentations.isEmpty())){
                 throw new EmailExistsExecption("username or email already exists");
+            }
+            Speciality speciality = specialityRepository.findByName(specialityName);
+            if (speciality != null) {
+
+
+            } else {
+                // Vous pouvez lancer une exception si la spécialité n'existe pas
             }
             Response response = keycloak.realm("corilus").users().create(userRep);
 
@@ -111,6 +129,9 @@ public class UserServiceImpl implements UserService {
             roleService.assignRole(userId,user);
             UserResource userResource = keycloak.realm("corilus").users().get(userId);
             userResource.sendVerifyEmail();
+            User userEntity = convertToEntity(userDto);
+            userEntity.setSpeciality(speciality);
+            userRepository.save(userEntity);
             return "Expert created";
 
         }
@@ -149,17 +170,17 @@ public class UserServiceImpl implements UserService {
     public UserRepresentation mapUserRep(UserDto userDto){
 
             UserRepresentation userRep = new UserRepresentation();
-            userRep.setUsername(userDto.getUsername());
-            userRep.setFirstName(userDto.getFirstName());
-            userRep.setLastName(userDto.getLastName());
-            userRep.setEmail(userDto.getEmail());
+            userRep.setUsername(userDto.username());
+            userRep.setFirstName(userDto.firstName());
+            userRep.setLastName(userDto.lastName());
+            userRep.setEmail(userDto.email());
             userRep.setEnabled(true);
             userRep.setEmailVerified(false);
 
         Map<String, List<String>> attributes = new HashMap<>();
-        if (userDto.getMobileNumber() != null) {
+        if (userDto.mobileNumber() != null) {
             List<String> mobileNumber = new ArrayList<>();
-            mobileNumber.add(userDto.getMobileNumber());
+            mobileNumber.add(userDto.mobileNumber());
             attributes.put("mobileNumber", mobileNumber);
         }
         userRep.setAttributes(attributes);
@@ -167,7 +188,7 @@ public class UserServiceImpl implements UserService {
             List<CredentialRepresentation> creds = new ArrayList<>();
             CredentialRepresentation cred = new CredentialRepresentation();
             cred.setTemporary(false);
-            cred.setValue(userDto.getPassword());
+            cred.setValue(userDto.password());
             creds.add(cred);
             userRep.setCredentials(creds);
             return userRep ;
@@ -185,12 +206,13 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public UserDto mapUser(UserRepresentation userRep){
-        UserDto user=new UserDto();
-        user.setFirstName(userRep.getFirstName());
-        user.setLastName(userRep.getLastName());
-        user.setEmail(userRep.getEmail());
-        user.setUsername(userRep.getUsername());
-        return user;
+      return ImmutableUserDto.builder()
+              .firstName(userRep.getFirstName())
+              .lastName(userRep.getLastName())
+              .email(userRep.getEmail())
+              .username(userRep.getUsername())
+              .build();
+
     }
     @Override
     public void forgotPassword(String email) {
@@ -217,6 +239,17 @@ public class UserServiceImpl implements UserService {
         throw new RuntimeException("User not found.");
     }
 }
+
+    private User convertToEntity(UserDto userDto) {
+        return User.builder()
+                .firstName(userDto.firstName())
+                .lastName(userDto.lastName())
+                .email(userDto.email())
+                .username(userDto.username())
+                .password(userDto.password())
+                .mobileNumber(userDto.mobileNumber())
+                .build();
+    }
 
 
 
