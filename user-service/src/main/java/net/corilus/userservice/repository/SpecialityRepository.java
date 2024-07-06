@@ -1,6 +1,6 @@
 package net.corilus.userservice.repository;
 
-import net.corilus.userservice.model.Speciality;
+import net.corilus.userservice.entity.Speciality;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

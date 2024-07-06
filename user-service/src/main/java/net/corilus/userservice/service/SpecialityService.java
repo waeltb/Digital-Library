@@ -1,8 +1,7 @@
 package net.corilus.userservice.service;
 
-import net.corilus.userservice.dto.RoleDto;
 import net.corilus.userservice.dto.SpecialityDto;
-import net.corilus.userservice.model.Speciality;
+import net.corilus.userservice.entity.Speciality;
 
 import java.util.List;
 
@@ -11,7 +10,7 @@ public interface SpecialityService {
 
     SpecialityDto getSpeciality(String specialityName);
 
-    void createRole( SpecialityDto specialityDto);
+    void createSpeciality( SpecialityDto specialityDto);
 
     void updateSpeciality(SpecialityDto specialityDto ,String specialityName);
 

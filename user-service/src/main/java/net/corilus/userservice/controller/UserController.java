@@ -5,6 +5,7 @@ package net.corilus.userservice.controller;
 import jakarta.validation.Valid;
 import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.UserDto;
+import net.corilus.userservice.entity.User;
 import net.corilus.userservice.exception.EmailExistsExecption;
 import net.corilus.userservice.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("*")
 @RestController
 @Validated
-@RequestMapping("/User")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -45,7 +45,7 @@ public class UserController {
         }
 
     }
-        @PostMapping("/addexpert/{specialityName}")
+    @PostMapping("/addexpert/{specialityName}")
     public ResponseEntity<?> addexpert(  @RequestBody @Valid UserDto userDto,@PathVariable("specialityName") String specialityName){
 
         try {
@@ -84,6 +84,9 @@ public class UserController {
     public void forgotPassword(@PathVariable("email") String email){
         userService.forgotPassword(email);
     }
-
+    @GetMapping("/availableexperts/{specialityName}")
+    public List<User> getAvailableExperts(@PathVariable String specialityName) {
+        return userService.getAvailableExperts(specialityName);
+    }
 
 }

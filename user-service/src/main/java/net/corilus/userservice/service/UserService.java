@@ -1,6 +1,7 @@
 package net.corilus.userservice.service;
 import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.UserDto;
+import net.corilus.userservice.entity.User;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public interface UserService {
     List<UserDto> mapUsers(List<UserRepresentation> userRepresentations);
     UserDto mapUser(UserRepresentation userRep);
     void forgotPassword(String email);
+    List<User> getAvailableExperts(String specialityName);
 
 
 }

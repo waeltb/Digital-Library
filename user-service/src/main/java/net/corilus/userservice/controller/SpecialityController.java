@@ -15,7 +15,7 @@ public class SpecialityController {
 
     @PostMapping("/addSpeciality")
     public String addSpeciality(@RequestBody SpecialityDto speciality) {
-        specialityService.createRole(speciality);
+        specialityService.createSpeciality(speciality);
         return "success";
     }
 

@@ -1,5 +1,6 @@
-package net.corilus.userservice.model;
+package net.corilus.userservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -41,10 +42,13 @@ public class User {
     private String password;
     private String mobileNumber;
     private Date availabilityDate ;
+    @JsonIgnore
     @ManyToOne
     private Role role ;
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Leave> leaveList ;
+    @JsonIgnore
     @ManyToOne
     private Speciality speciality ;
 

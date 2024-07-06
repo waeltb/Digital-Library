@@ -1,4 +1,4 @@
-package net.corilus.userservice.model;
+package net.corilus.userservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

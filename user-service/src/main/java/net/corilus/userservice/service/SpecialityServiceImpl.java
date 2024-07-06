@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.corilus.userservice.dto.ImmutableSpecialityDto;
 import net.corilus.userservice.dto.SpecialityDto;
-import net.corilus.userservice.model.Speciality;
+import net.corilus.userservice.entity.Speciality;
 import net.corilus.userservice.repository.SpecialityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class SpecialityServiceImpl implements SpecialityService {
     }
 
     @Override
-    public void createRole(SpecialityDto specialityDto) {
+    public void createSpeciality(SpecialityDto specialityDto) {
         Speciality speciality = convertToEntity(specialityDto);
         specialityRepository.save(speciality);
     }

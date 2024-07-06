@@ -19,7 +19,7 @@ spring:
           predicates:
             - Path= /**
         - id: COURSE-SERVICE
-          uri: lb://user-service
+          uri: lb://course-service
           predicates:
             - Path= /**
       globalcors:
@@ -38,4 +38,3 @@ eureka:
       defaultZone: http://localhost:8761/eureka
   instance:
     prefer-ip-address: true
-

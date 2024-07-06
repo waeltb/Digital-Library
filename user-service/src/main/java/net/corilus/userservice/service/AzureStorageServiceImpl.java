@@ -16,6 +16,8 @@ import java.util.List;
 public class AzureStorageServiceImpl implements AzureStorageService{
     @Value("${azure.storage.connection.string}")
     private String connectionString;
+    @Value("${azure.storage.container.useraccount}")
+    private String containerName;
     @Override
     public String write(Storage storage,Container container) {
         /*

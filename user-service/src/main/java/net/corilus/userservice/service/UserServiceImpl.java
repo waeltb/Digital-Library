@@ -6,11 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.ImmutableUserDto;
-import net.corilus.userservice.dto.SpecialityDto;
 import net.corilus.userservice.dto.UserDto;
+import net.corilus.userservice.entity.Role;
 import net.corilus.userservice.exception.EmailExistsExecption;
-import net.corilus.userservice.model.Speciality;
-import net.corilus.userservice.model.User;
+import net.corilus.userservice.entity.Speciality;
+import net.corilus.userservice.entity.User;
+import net.corilus.userservice.repository.RoleRepository;
 import net.corilus.userservice.repository.SpecialityRepository;
 import net.corilus.userservice.repository.UserRepository;
 import net.corilus.userservice.securityconfig.KeycloakConfig;
@@ -41,6 +42,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     SpecialityRepository specialityRepository;
+    @Autowired
+    RoleRepository roleRepository ;
 
     @Override
     public String login(AuthenticationRequest authenticationRequest) {
@@ -240,7 +243,15 @@ public class UserServiceImpl implements UserService {
     }
 }
 
+    @Override
+    public List<User> getAvailableExperts(String specialityName) {
+        Date currentDate = new Date();
+        return userRepository.findByRole_NameAndAvailabilityDateLessThanEqualAndSpeciality_Name("expert", currentDate,specialityName);
+    }
+
+
     private User convertToEntity(UserDto userDto) {
+        Role role  = roleRepository.findByName("expert");
         return User.builder()
                 .firstName(userDto.firstName())
                 .lastName(userDto.lastName())
@@ -248,6 +259,8 @@ public class UserServiceImpl implements UserService {
                 .username(userDto.username())
                 .password(userDto.password())
                 .mobileNumber(userDto.mobileNumber())
+                .availabilityDate(userDto.availabilityDate().orElse(new Date()))
+                .role(role)
                 .build();
     }
 

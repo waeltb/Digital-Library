@@ -1,4 +1,4 @@
-package net.corilus.userservice.model;
+package net.corilus.courseservice.enums;
 
 public enum Typesofleave {
     DISEASE

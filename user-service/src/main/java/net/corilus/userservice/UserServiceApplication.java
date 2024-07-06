@@ -18,11 +18,16 @@ public class UserServiceApplication {
         SpringApplication.run(UserServiceApplication.class, args);
     }
 
+/*
     @Bean
     public FilterRegistrationBean<IpFilter> ipFilter() {
         FilterRegistrationBean<IpFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new IpFilter());
-        registrationBean.addUrlPatterns("/speciality/*","/User/*");
+        registrationBean.addUrlPatterns("/speciality/*","/test/*");
         return registrationBean;
     }
+
+ */
+
+
 }

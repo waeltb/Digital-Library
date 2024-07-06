@@ -1,21 +1,15 @@
-package net.corilus.userservice.model;
+package net.corilus.courseservice.modal;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.corilus.courseservice.enums.Typesofleave;
 
 import java.util.Date;
 
 
-@Table(name = "`leave`")
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Builder
+@Data
 public class Leave {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int id ;
 
     private Date startDate ;
@@ -24,13 +18,13 @@ public class Leave {
 
     private Boolean accepted ;
 
-    @Enumerated(EnumType.STRING)
+
     private Typesofleave typesofleave ;
 
 
     private String imagepath ;
 
-    @ManyToOne
+
     private User user ;
 
 
