@@ -12,10 +12,7 @@ public class AzureBlobStorageConfiguration {
 
     @Value("${azure.storage.container.useraccount}")
     private String containerUserAccount;
-    @Value("${azure.storage.container.image}")
-    private String containerImage;
-    @Value("${azure.storage.container.video}")
-    private String containerVideo;
+
 
     @Value("${azure.storage.connection.string}")
     private String connectionString;
@@ -40,6 +37,7 @@ public class AzureBlobStorageConfiguration {
 
         return containerClient;
     }
+    /*
     @Bean
     public BlobContainerClient createBlobContainerImage() {
         BlobContainerClient containerClient = getBlobServiceClient()
@@ -64,4 +62,6 @@ public class AzureBlobStorageConfiguration {
 
         return containerClient;
     }
+
+     */
 }

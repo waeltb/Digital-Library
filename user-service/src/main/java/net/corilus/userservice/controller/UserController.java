@@ -19,12 +19,13 @@ import java.util.List;
 @RestController
 @Validated
 @RequestMapping("/user")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     @Autowired
     UserServiceImpl userService ;
-    @PostMapping("/test-post")
-    public ResponseEntity<String> testPost(@RequestBody @Valid AuthenticationRequest authenticationRequest) {
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid AuthenticationRequest authenticationRequest) {
         String response = userService.login(authenticationRequest);
         return ResponseEntity.ok(response);
     }

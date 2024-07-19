@@ -34,11 +34,15 @@ public class CourseServiceImpl implements CourseService {
     private String azureStorageConnectionString;
 
     @Override
-    public String createCourse(CourseDto courseDto, MultipartFile videoFile, MultipartFile imageFile, String nameSpeciality) throws IOException {
-        String videoPath = uploadFileToAzure(videoFile, "videos");
-        String imagePath = uploadFileToAzure(imageFile, "images");
+    public String createCourse(CourseDto courseDto, MultipartFile videoFile, MultipartFile imageFile) throws IOException {
+        String videoPath = uploadFileToAzure(videoFile, "video");
+        String imagePath = uploadFileToAzure(imageFile, "picture");
+        List<User> availableExperts = userClient.getAvailableExperts(courseDto.getSpeciality());
+        int expertId = availableExperts.get(0).getId();
 
-        Course course = convertToEntity(courseDto, nameSpeciality, videoPath, imagePath);
+
+
+        Course course = convertToEntity(courseDto, videoPath, imagePath,expertId);
         courseRepository.save(course);
         return "success";
     }
@@ -63,7 +67,7 @@ public class CourseServiceImpl implements CourseService {
         return userClient.getAvailableExperts(specialityName);
     }
 
-    private Course convertToEntity(CourseDto courseDto, String nameSpeciality, String videoPath, String imagePath) {
+    private Course convertToEntity(CourseDto courseDto, String videoPath, String imagePath,int expertId) {
         return Course.builder()
                 .title(courseDto.getTitle())
                 .price(courseDto.getPrice())
@@ -71,9 +75,10 @@ public class CourseServiceImpl implements CourseService {
                 .creationdate(new Date())
                 .descriptiveVideo(videoPath)
                 .image(imagePath)
-                .speciality(nameSpeciality)
+                .speciality(courseDto.getSpeciality())
                 .level(courseDto.getLevel())
                 .status(Status.INPROGRESS)
+                .expertId(expertId)
                 .build();
     }
 
@@ -92,4 +97,5 @@ public class CourseServiceImpl implements CourseService {
                 .containerName(containerName)
                 .buildClient();
     }
+
 }
