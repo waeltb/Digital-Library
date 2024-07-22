@@ -7,7 +7,13 @@ import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.UserDto;
 import net.corilus.userservice.entity.User;
 import net.corilus.userservice.exception.EmailExistsExecption;
+import net.corilus.userservice.securityconfig.KeycloakConfig;
 import net.corilus.userservice.service.UserServiceImpl;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,14 +69,16 @@ public class UserController {
         }
 
     }
-    @PutMapping("/updateUser/{id}")
-    public String updateUser(@PathVariable("id") String id,@RequestBody UserDto user){
-        userService.updateUser(id,user);
+    @PutMapping("/updateUser/{userId}")
+    public String updateUser( @RequestBody UserDto userDto,@PathVariable("userId") String userId){
+        System.out.println("**************************");
+        System.out.println("userDTO est "+userDto);
+        userService.updateUser(userDto,userId);
         return "modifier avce succes";
     }
-    @GetMapping("/getUser/{id}")
-    public UserDto getUser(@PathVariable("id") String id){
-        return  userService.getUser(id);
+    @GetMapping("/getUser/{username}")
+    public UserDto getUser(@PathVariable("username") String username){
+        return  userService.getUser(username);
     }
     @GetMapping("/getAllUser")
     public List<UserDto> getUsers(){
@@ -89,5 +97,8 @@ public class UserController {
     public List<User> getAvailableExperts(@PathVariable String specialityName) {
         return userService.getAvailableExperts(specialityName);
     }
+
+
+
 
 }

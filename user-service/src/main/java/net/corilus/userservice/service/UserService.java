@@ -11,7 +11,7 @@ public interface UserService {
     String login(AuthenticationRequest authenticationRequest);
     String createUser(UserDto user);
     String createExpert(UserDto userDto,String specialityName);
-    void updateUser(String id, UserDto user);
+    void updateUser(UserDto userDto,String userId);
     List<UserDto> getUsers();
     UserDto getUser(String id);
     void deleteUser(String id);

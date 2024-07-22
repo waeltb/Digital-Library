@@ -18,7 +18,9 @@
     import net.corilus.userservice.repository.UserRepository;
     import net.corilus.userservice.securityconfig.KeycloakConfig;
     import org.keycloak.admin.client.CreatedResponseUtil;
+    import org.keycloak.admin.client.resource.RealmResource;
     import org.keycloak.admin.client.resource.UserResource;
+    import org.keycloak.admin.client.resource.UsersResource;
     import org.keycloak.common.util.CollectionUtil;
     import org.keycloak.representations.idm.CredentialRepresentation;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -89,21 +91,19 @@
                     throw new EmailExistsExecption("username or email already exists");
                 }
                 Response response = keycloak.realm("corilus").users().create(userRep);
-
+                User userEntity = convertUserToEntity(userDto);
+                userRepository.save(userEntity);
 
                 if (response.getStatus() != 201) {
                     throw new RuntimeException("Failed to create user");
                 }
                 String userId = CreatedResponseUtil.getCreatedId(response);
+                System.out.println("userID est de createUser"+userId);
                 roleService.getRole(user);
                 roleService.assignRole(userId,user);
                 UserResource userResource = keycloak.realm("corilus").users().get(userId);
                 userResource.sendVerifyEmail();
-             // Create directory with the username in Azure Blob Storage
-                BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("useraccount");
-                String directoryName = userDto.username() ;
-              containerClient.getBlobClient(directoryName);
-                //containerClient.getBlobClient(directoryName).upload(new ByteArrayInputStream(new byte[0]), 0);
+
 
                 return "User created";
 
@@ -145,7 +145,7 @@
                 roleService.assignRole(userId,user);
                 UserResource userResource = keycloak.realm("corilus").users().get(userId);
                 userResource.sendVerifyEmail();
-                User userEntity = convertToEntity(userDto);
+                User userEntity = convertExpertToEntity(userDto);
                 userEntity.setSpeciality(speciality);
                 userRepository.save(userEntity);
                 return "Expert created";
@@ -157,41 +157,89 @@
         }
 
         @Override
-        public void updateUser(String id, UserDto user) {
-            UserRepresentation userRep = mapUserRep(user);
-            Keycloak k = KeycloakConfig.getInstance();
-            k.realm("corilus").users().get(id).update(userRep);
+        public void updateUser( UserDto userDto,String userId) {
+            Keycloak keycloak = KeycloakConfig.getInstance();
+
+            // Accès à la ressource Realm
+            RealmResource realmResource = keycloak.realm("corilus");
+            UserRepresentation user = realmResource.users().get(userId).toRepresentation();
+            String userUsername =user.getUsername();
+            // Accès à la ressource Users
+            UsersResource usersResource = realmResource.users();
+
+            UserResource userResource = usersResource.get(userId);
+            UserRepresentation userRepresentation = userResource.toRepresentation();
+
+
+            // Modifier les champs nécessaires
+
+            userRepresentation.setFirstName(userDto.firstName());
+            userRepresentation.setLastName(userDto.lastName());
+
+
+            Map<String, List<String>> attributes = new HashMap<>();
+            if (userDto.mobileNumber() != null) {
+                List<String> mobileNumber = new ArrayList<>();
+                mobileNumber.add(userDto.mobileNumber());
+                attributes.put("mobileNumber", mobileNumber);
+            }
+            userRepresentation.setAttributes(attributes);
+            if (userDto.country() != null) {
+                List<String> country = new ArrayList<>();
+                country.add(userDto.country().get().name());
+                attributes.put("country", country);
+            }
+            userRepresentation.setAttributes(attributes);
+            // Mettre à jour l'utilisateur
+            userResource.update(userRepresentation);
+          User user1 =  userRepository.findByUsername(userUsername);
+          user1.setFirstName(userDto.firstName());
+          user1.setLastName(userDto.lastName());
+          user1.setMobileNumber(userDto.mobileNumber());
+          user1.setCountry(userDto.country().get());
+          userRepository.save(user1);
 
         }
 
         @Override
         public List<UserDto> getUsers() {
-            Keycloak k = KeycloakConfig.getInstance();
-            List<UserRepresentation> userRepresentations=k.realm("corilus").users().list();
-            return mapUsers(userRepresentations);
+
+            List<User> users= userRepository.findAll();
+            List<UserDto> usersDTO= new ArrayList<>();
+            if (CollectionUtil.isNotEmpty(users)){
+                users.forEach(user->{
+                    usersDTO.add(mapUserEntityToDto(user));
+                });
+            }
+            return usersDTO;
         }
 
         @Override
-        public UserDto getUser(String id) {
+        public UserDto getUser(String username) {
+            /*
             Keycloak k = KeycloakConfig.getInstance();
-            return mapUser(k.realm("pfe").users().get(id).toRepresentation());
+            return mapUser(k.realm("corilus").users().get(id).toRepresentation());
+
+             */
+            User user = userRepository.findByUsername(username);
+            return mapUserEntityToDto(user);
         }
 
         @Override
         public void deleteUser(String id) {
             Keycloak k = KeycloakConfig.getInstance();
-            k.realm("pfe").users().delete(id);
+            k.realm("corilus").users().delete(id);
         }
+
         @Override
-        public UserRepresentation mapUserRep(UserDto userDto){
-
-                UserRepresentation userRep = new UserRepresentation();
-                userRep.setUsername(userDto.username());
-
-                userRep.setLastName(userDto.lastName());
-                userRep.setEmail(userDto.email());
-                userRep.setEnabled(true);
-                userRep.setEmailVerified(false);
+        public UserRepresentation mapUserRep(UserDto userDto) {
+            UserRepresentation userRep = new UserRepresentation();
+            userRep.setFirstName(userDto.firstName());
+            userRep.setUsername(userDto.username());
+            userRep.setLastName(userDto.lastName());
+            userRep.setEmail(userDto.email());
+            userRep.setEnabled(true);
+            userRep.setEmailVerified(false);
 
             Map<String, List<String>> attributes = new HashMap<>();
             if (userDto.mobileNumber() != null) {
@@ -201,15 +249,21 @@
             }
             userRep.setAttributes(attributes);
 
+            // Set credentials
+            if (userDto.password() != null) {
                 List<CredentialRepresentation> creds = new ArrayList<>();
                 CredentialRepresentation cred = new CredentialRepresentation();
                 cred.setTemporary(false);
-                cred.setValue(userDto.password());
+                cred.setType(CredentialRepresentation.PASSWORD);
+                cred.setValue(userDto.password().orElse(null));
                 creds.add(cred);
                 userRep.setCredentials(creds);
-                return userRep ;
+            }
 
+            log.info("UserRepresentation: {}", userRep);
+            return userRep;
         }
+
         @Override
         public List<UserDto> mapUsers(List<UserRepresentation> userRepresentations){
             List<UserDto> users= new ArrayList<>();
@@ -222,10 +276,23 @@
         }
         @Override
         public UserDto mapUser(UserRepresentation userRep){
+            String mobileNumber = null;
+
+            // Check if the userRep has the "mobileNumber" attribute
+            if (userRep.getAttributes() != null && userRep.getAttributes().containsKey("mobileNumber")) {
+                // Get the list of mobile numbers
+                List<String> mobileNumbers = userRep.getAttributes().get("mobileNumber");
+                if (mobileNumbers != null && !mobileNumbers.isEmpty()) {
+                    // Use the first mobile number in the list
+                    mobileNumber = mobileNumbers.get(0);
+                }
+            }
           return ImmutableUserDto.builder()
+                  .firstName(userRep.getFirstName())
                   .lastName(userRep.getLastName())
                   .email(userRep.getEmail())
                   .username(userRep.getUsername())
+                  .mobileNumber(mobileNumber)
                   .build();
 
         }
@@ -262,19 +329,44 @@
         }
 
 
-        private User convertToEntity(UserDto userDto) {
+        private User convertExpertToEntity(UserDto userDto) {
             Role role  = roleRepository.findByName("expert");
             return User.builder()
+                    .firstName(userDto.firstName())
                     .lastName(userDto.lastName())
                     .email(userDto.email())
                     .username(userDto.username())
-                    .password(userDto.password())
+                    .password(userDto.password().orElse(null))
                     .mobileNumber(userDto.mobileNumber())
                     .availabilityDate(userDto.availabilityDate().orElse(new Date()))
                     .role(role)
                     .build();
         }
+        private User convertUserToEntity(UserDto userDto) {
+            Role role  = roleRepository.findByName("expert");
+            return User.builder()
+                    .firstName(userDto.firstName())
+                    .lastName(userDto.lastName())
+                    .email(userDto.email())
+                    .username(userDto.username())
+                    .password(userDto.password().orElse(null))
+                    .mobileNumber(userDto.mobileNumber())
+                    .availabilityDate(userDto.availabilityDate().orElse(new Date()))
+                    .role(role)
+                    .country(userDto.country().orElse(null))
+                    .build();
+        }
 
+        private UserDto mapUserEntityToDto(User user){
+            return ImmutableUserDto.builder()
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .email(user.getEmail())
+                    .username(user.getUsername())
+                    .mobileNumber(user.getMobileNumber())
+                    .build();
+
+        }
 
 
     }
