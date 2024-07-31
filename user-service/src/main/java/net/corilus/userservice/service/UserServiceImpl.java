@@ -7,6 +7,7 @@
     import lombok.RequiredArgsConstructor;
     import lombok.extern.slf4j.Slf4j;
     import net.corilus.userservice.dto.AuthenticationRequest;
+    import net.corilus.userservice.dto.Container;
     import net.corilus.userservice.dto.ImmutableUserDto;
     import net.corilus.userservice.dto.UserDto;
     import net.corilus.userservice.entity.Role;
@@ -51,6 +52,8 @@
         RoleRepository roleRepository ;
         @Autowired
         private BlobServiceClient blobServiceClient ;
+        @Autowired
+        AzureStorageServiceImpl azureStorageService;
 
 
         @Override
@@ -91,8 +94,12 @@
                     throw new EmailExistsExecption("username or email already exists");
                 }
                 Response response = keycloak.realm("corilus").users().create(userRep);
+
                 User userEntity = convertUserToEntity(userDto);
                 userRepository.save(userEntity);
+
+
+
 
                 if (response.getStatus() != 201) {
                     throw new RuntimeException("Failed to create user");
@@ -164,6 +171,7 @@
             RealmResource realmResource = keycloak.realm("corilus");
             UserRepresentation user = realmResource.users().get(userId).toRepresentation();
             String userUsername =user.getUsername();
+            System.out.println("hser de bd est "+userUsername);
             // Accès à la ressource Users
             UsersResource usersResource = realmResource.users();
 
@@ -175,7 +183,7 @@
 
             userRepresentation.setFirstName(userDto.firstName());
             userRepresentation.setLastName(userDto.lastName());
-
+            userRepresentation.setEmail(userDto.email());
 
             Map<String, List<String>> attributes = new HashMap<>();
             if (userDto.mobileNumber() != null) {
@@ -195,6 +203,7 @@
           User user1 =  userRepository.findByUsername(userUsername);
           user1.setFirstName(userDto.firstName());
           user1.setLastName(userDto.lastName());
+          user1.setEmail(userDto.email());
           user1.setMobileNumber(userDto.mobileNumber());
           user1.setCountry(userDto.country().get());
           userRepository.save(user1);

@@ -25,8 +25,7 @@ import java.io.InputStream;
 @Slf4j
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
-    @Value("${azure.storage.container.useraccount}")
-    private String containerUserAccount;
+
 
 
     @Value("${azure.storage.connection.string}")
@@ -46,7 +45,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ResponseEntity<Resource> getImage(String username) {
         String fileName = username + ".png";
-        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerUserAccount);
+BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("useraccount");
         BlobClient blobClient = containerClient.getBlobClient(fileName);
 
         // Download the blob to an InputStream

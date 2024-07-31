@@ -5,6 +5,7 @@ package net.corilus.userservice.controller;
 import jakarta.validation.Valid;
 import net.corilus.userservice.dto.AuthenticationRequest;
 import net.corilus.userservice.dto.UserDto;
+import net.corilus.userservice.entity.Country;
 import net.corilus.userservice.entity.User;
 import net.corilus.userservice.exception.EmailExistsExecption;
 import net.corilus.userservice.securityconfig.KeycloakConfig;
@@ -96,6 +97,11 @@ public class UserController {
     @GetMapping("/availableexperts/{specialityName}")
     public List<User> getAvailableExperts(@PathVariable String specialityName) {
         return userService.getAvailableExperts(specialityName);
+    }
+    @GetMapping("/getCountry")
+    public ResponseEntity<Country[]> getAllCountry() {
+        Country[] country = Country.values();
+        return ResponseEntity.ok(country);
     }
 
 
