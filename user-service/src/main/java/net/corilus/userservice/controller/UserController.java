@@ -16,11 +16,14 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -105,6 +108,15 @@ public class UserController {
     }
 
 
+    @PostMapping("/upload")
+    public String uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException {
+        userService.uploadImage(file,username);
+        return "success";
 
+    }
+    @GetMapping("/getimage")
+    public ResponseEntity<Resource> getImage(@RequestParam("username") String username) {
+        return userService.getImage(username);
+    }
 
 }

@@ -1,6 +1,7 @@
     package net.corilus.userservice.service;
 
 
+    import com.azure.storage.blob.BlobClient;
     import com.azure.storage.blob.BlobContainerClient;
     import com.azure.storage.blob.BlobServiceClient;
     import jakarta.ws.rs.core.Response;
@@ -25,14 +26,21 @@
     import org.keycloak.common.util.CollectionUtil;
     import org.keycloak.representations.idm.CredentialRepresentation;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.core.io.InputStreamResource;
+    import org.springframework.core.io.Resource;
     import org.springframework.stereotype.Service;
     import org.keycloak.representations.idm.UserRepresentation;
     import org.springframework.http.*;
 
     import org.keycloak.admin.client.Keycloak;
     import org.springframework.web.client.RestTemplate;
+    import org.springframework.web.multipart.MultipartFile;
 
     import java.io.ByteArrayInputStream;
+    import java.io.ByteArrayOutputStream;
+    import java.io.IOException;
+    import java.io.InputStream;
     import java.util.*;
 
     @Service
@@ -54,7 +62,8 @@
         private BlobServiceClient blobServiceClient ;
         @Autowired
         AzureStorageServiceImpl azureStorageService;
-
+        @Value("${azure.storage.connection.string}")
+        private String connectionString;
 
         @Override
         public String login(AuthenticationRequest authenticationRequest) {
@@ -337,7 +346,36 @@
             return userRepository.findByRole_NameAndAvailabilityDateLessThanEqualAndSpeciality_NameOrderByAvailabilityDate("expert", currentDate,specialityName);
         }
 
+        @Override
+        public void uploadImage(MultipartFile file, String username) throws IOException {
+            String fileName = username + ".png";
 
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("wael");
+            BlobClient blobClient = containerClient.getBlobClient(fileName);
+
+            blobClient.upload(file.getInputStream(), file.getSize(), true);
+        }
+
+        @Override
+        public ResponseEntity<Resource> getImage(String username) {
+            String fileName = username + ".png";
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("wael");
+            BlobClient blobClient = containerClient.getBlobClient(fileName);
+
+            // Download the blob to an InputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            blobClient.download(outputStream);
+            byte[] imageBytes = outputStream.toByteArray();
+
+            InputStream inputStream = new ByteArrayInputStream(imageBytes);
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_TYPE, "image/png"); // or the appropriate mime type
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        }
         private User convertExpertToEntity(UserDto userDto) {
             Role role  = roleRepository.findByName("expert");
             return User.builder()
