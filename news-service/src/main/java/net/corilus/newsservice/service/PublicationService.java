@@ -3,7 +3,9 @@ package net.corilus.newsservice.service;
 import com.azure.storage.blob.BlobContainerClient;
 import net.corilus.newsservice.dto.PublicationDto;
 import net.corilus.newsservice.entity.Publication;
+import net.corilus.newsservice.modal.User;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -24,4 +26,5 @@ public interface PublicationService {
     BlobContainerClient getBlobContainerClient(String containerName);
      String uploadFileToAzure(MultipartFile file, String directory, String containerName)throws IOException;
       String extractFromImagePath(String imagePath, String keyword) ;
+    User getUserById(Long idUser);
 }

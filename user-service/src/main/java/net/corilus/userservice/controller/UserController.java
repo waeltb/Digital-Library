@@ -118,5 +118,9 @@ public class UserController {
     public ResponseEntity<Resource> getImage(@RequestParam("username") String username) {
         return userService.getImage(username);
     }
+    @GetMapping("/getUserById/{idUser}")
+    public UserDto getUserById(@PathVariable("idUser") Long idUser){
+        return  userService.getUserById(idUser);
+    }
 
 }

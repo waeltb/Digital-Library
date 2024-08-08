@@ -26,5 +26,6 @@ public interface UserService {
     List<User> getAvailableExperts(String specialityName);
     void uploadImage(MultipartFile file, String username) throws IOException;
     ResponseEntity<Resource> getImage(String username);
+    UserDto getUserById(Long id);
 
 }

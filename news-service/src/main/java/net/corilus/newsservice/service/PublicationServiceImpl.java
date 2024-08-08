@@ -7,6 +7,8 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 import net.corilus.newsservice.dto.ImmutablePublicationDto;
 import net.corilus.newsservice.dto.PublicationDto;
 import net.corilus.newsservice.entity.Publication;
+import net.corilus.newsservice.feignclient.UserClient;
+import net.corilus.newsservice.modal.User;
 import net.corilus.newsservice.repository.PublicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,8 @@ public class PublicationServiceImpl implements PublicationService {
 
     @Autowired
     PublicationRepository publicationRepository;
+    @Autowired
+   UserClient userClient;
 
     @Value("${azure.storage.connection.string}")
     private String azureStorageConnectionString;
@@ -63,9 +67,6 @@ public class PublicationServiceImpl implements PublicationService {
                 .body(imageBytes);
     }
 
-
-
-
     @Override
     public List<PublicationDto> getAllPublications() {
         List<Publication> publications = publicationRepository.findAll();
@@ -93,7 +94,6 @@ public class PublicationServiceImpl implements PublicationService {
         blobClient.delete();
 
         // upload new image
-
         String newImagePath = uploadFileToAzure(image, "publication", containerName);
 
 
@@ -163,15 +163,18 @@ public class PublicationServiceImpl implements PublicationService {
         return URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8.name());
     }
     @Override
-
     public PublicationDto convertToDto(Publication publication) throws UnsupportedEncodingException {
         String imageUrl = getImageUrl(publication.getImage(), publication.getContainername());
+        User user = userClient.getUserById((long) publication.getAuthorId());
         return ImmutablePublicationDto.builder()
                 .title(publication.getTitle())
                 .description(publication.getDescription())
                 .image(imageUrl)
                 .speciality(publication.getSpeciality())
                 .containername(publication.getContainername())
+                .author(publication.getAuthorId())
+                .username(user.getUsername())
+                .id(publication.getId())
                 .build();
     }
     @Override
@@ -198,6 +201,10 @@ public class PublicationServiceImpl implements PublicationService {
         }
     }
 
+    @Override
+    public User getUserById(Long idUser) {
+        return userClient.getUserById(idUser);
+    }
 
 
 }

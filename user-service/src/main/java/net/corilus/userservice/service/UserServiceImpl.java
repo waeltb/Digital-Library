@@ -376,6 +376,13 @@
 
             return new ResponseEntity<>(resource, headers, HttpStatus.OK);
         }
+
+        @Override
+        public UserDto getUserById(Long id) {
+            User user = userRepository.findById(id).orElse(null);
+            return mapUserEntityToDto(user);
+        }
+
         private User convertExpertToEntity(UserDto userDto) {
             Role role  = roleRepository.findByName("expert");
             return User.builder()

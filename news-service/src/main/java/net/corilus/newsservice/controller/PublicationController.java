@@ -2,6 +2,7 @@ package net.corilus.newsservice.controller;
 
 import net.corilus.newsservice.dto.PublicationDto;
 
+import net.corilus.newsservice.modal.User;
 import net.corilus.newsservice.service.PublicationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,8 @@ public String addPublication(@ModelAttribute PublicationDto publicationDto,
         return publicationService.getPublicationById(id);
 
     }
-    @GetMapping("/getImagePublicationById/{idPublication}")
-    public ResponseEntity<byte[]> getImagePublicationById(@PathVariable("idPublication")Long id) throws IOException {
+    @GetMapping("/getImagePublicationById")
+    public ResponseEntity<byte[]> getImagePublicationById(@RequestParam("idPublication")Long id) throws IOException {
         return publicationService.getImageById(id);
     }
     @GetMapping("/getAllPublications")
@@ -45,6 +46,11 @@ public String addPublication(@ModelAttribute PublicationDto publicationDto,
     @PutMapping("/updatePublication")
     public void updatePublication(@RequestParam("idPublication") Long id, @ModelAttribute PublicationDto publicationDto, @RequestParam("imageFile") MultipartFile image) throws IOException {
         publicationService.updatePublication(id, publicationDto,image);
+    }
+    @GetMapping("/getUserById/{idUser}")
+    public ResponseEntity<?> getUserById(@PathVariable Long idUser) {
+        User user = publicationService.getUserById(idUser);
+        return ResponseEntity.ok(user);
     }
 
 
