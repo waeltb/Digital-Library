@@ -18,6 +18,7 @@ public class Publication {
     private  int id;
     private int authorId ;
     private  String title;
+    @Column(length = 50000) // Spécifiez une taille appropriée
     private  String description;
     private Date creationdate;
     private String image;

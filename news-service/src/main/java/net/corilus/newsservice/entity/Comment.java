@@ -13,7 +13,7 @@ import java.util.Date;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  int id;
+        private  int id;
     private int authorId ;
     private  String description;
     private Date creationdate;

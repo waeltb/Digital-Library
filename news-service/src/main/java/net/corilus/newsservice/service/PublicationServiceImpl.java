@@ -100,7 +100,7 @@ public class PublicationServiceImpl implements PublicationService {
 
         publication.setSpeciality(publicationDto.getSpeciality());
         publication.setDescription(publicationDto.getDescription());
-        publication.setImage(publicationDto.getTitle());
+        publication.setTitle(publicationDto.getTitle());
         publication.setCreationdate(new Date());
         publication.setImage(newImagePath);
         publicationRepository.save(publication);
@@ -175,6 +175,7 @@ public class PublicationServiceImpl implements PublicationService {
                 .author(publication.getAuthorId())
                 .username(user.getUsername())
                 .id(publication.getId())
+                .creationdate(publication.getCreationdate())
                 .build();
     }
     @Override

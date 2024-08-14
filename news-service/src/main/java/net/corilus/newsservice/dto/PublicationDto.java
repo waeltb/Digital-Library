@@ -17,4 +17,5 @@ public interface PublicationDto {
     String getSpeciality();
     String getContainername();
     Optional<String> getUsername();
+    Optional<Date> getCreationdate();
 }

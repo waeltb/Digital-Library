@@ -10,6 +10,7 @@ import java.util.Optional;
 @JsonDeserialize(as =ImmutableCommentDto.class)
 
 public interface CommentDto {
+    Optional<Integer> getId();
     String getDescription();
     Optional<Integer> getAuthor();
     Optional<Date> getCreationdate();

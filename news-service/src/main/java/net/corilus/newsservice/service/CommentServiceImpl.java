@@ -73,6 +73,7 @@ List<Comment> comments = commentRepository.findByPublication(publication);
                 .description(comment.getDescription())
                 .creationdate(comment.getCreationdate())
                 .author(comment.getAuthorId())
+                .id(comment.getId())
                 .build();
     }
 }
