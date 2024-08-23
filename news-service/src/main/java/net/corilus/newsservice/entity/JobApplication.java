@@ -18,6 +18,8 @@ public class JobApplication  {
     private  int applicationId;
     private  int userId;
     private Date applicationDate;
+    private String cv;
+    private String coverLetter;
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
     @ManyToOne

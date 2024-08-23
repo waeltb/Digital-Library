@@ -14,4 +14,6 @@ public interface JobApplicationDto {
     Integer getUserId();
     Date getApplicationDate();
     ApplicationStatus getApplicationStatus();
+    Date getCoverLetter();
+    String getCv();
 }
