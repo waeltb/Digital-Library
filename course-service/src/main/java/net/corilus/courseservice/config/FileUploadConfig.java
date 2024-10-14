@@ -16,8 +16,8 @@ public class FileUploadConfig {
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofMegabytes(900));
-        factory.setMaxRequestSize(DataSize.ofMegabytes(900));
+        factory.setMaxFileSize(DataSize.ofMegabytes(2000));
+        factory.setMaxRequestSize(DataSize.ofMegabytes(2000));
         return factory.createMultipartConfig();
     }
     @Bean
@@ -26,7 +26,7 @@ public class FileUploadConfig {
             @Override
             protected void customizeConnector(Connector connector) {
                 super.customizeConnector(connector);
-                connector.setMaxPostSize(900 * 1024 * 1024); // 100MB
+                connector.setMaxPostSize(2000 * 1024 * 1024); // 100MB
             }
         };
         return tomcat;

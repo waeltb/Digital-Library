@@ -1,6 +1,7 @@
 package net.corilus.courseservice.controller;
 
 import net.corilus.courseservice.dto.CourseDto;
+import net.corilus.courseservice.entity.Level;
 import net.corilus.courseservice.modal.Speciality;
 import net.corilus.courseservice.modal.User;
 import net.corilus.courseservice.service.CourseServiceImpl;
@@ -19,13 +20,13 @@ public class CourseController {
     @Autowired
     CourseServiceImpl courseService;
 
-    @PostMapping("/addCourse/{nameSpeciality}")
+    @PostMapping("/addCourse")
     public String addCourse(@ModelAttribute CourseDto courseDto,
                             @RequestParam("videoFile") MultipartFile videoFile,
-                            @RequestParam("imageFile") MultipartFile imageFile,
-                            @PathVariable String nameSpeciality) {
+                            @RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            courseService.createCourse(courseDto, videoFile, imageFile, nameSpeciality);
+            System.out.println("this is content of course"+courseDto);
+            courseService.createCourse(courseDto, videoFile, imageFile);
             return "Course added successfully";
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,5 +43,10 @@ public class CourseController {
     public ResponseEntity<?> getAvailableExperts(@PathVariable String specialityName) {
         List<User> users = courseService.getAvailableExperts(specialityName);
         return ResponseEntity.ok(users);
+    }
+    @GetMapping("/getLevel")
+    public ResponseEntity<Level[]> getAllLevels() {
+        Level[] levels = Level.values();
+        return ResponseEntity.ok(levels);
     }
 }

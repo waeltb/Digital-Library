@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface CourseService {
 
-    String createCourse(CourseDto courseDto, MultipartFile videoFile, MultipartFile imageFile, String nameSpeciality) throws IOException;
+    String createCourse(CourseDto courseDto, MultipartFile videoFile, MultipartFile imageFile) throws IOException;
     String updateCourse(CourseDto courseDto);
     String deleteCourse(int id);
     List<Speciality> getSpeciality();
