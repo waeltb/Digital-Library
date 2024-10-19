@@ -51,6 +51,8 @@ public class User {
     @JsonIgnore
     @ManyToOne
     private Speciality speciality ;
+    @Enumerated(EnumType.STRING)
+    private Country country ;
 
 
 

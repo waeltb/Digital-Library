@@ -7,16 +7,9 @@ import net.corilus.userservice.dto.Storage;
 import java.util.List;
 
 public interface AzureStorageService {
-    String write(Storage storage,Container container);
-    String update(Storage storage);
 
-    byte[] read(Storage storage) ;
 
-    List<String> listFiles(Storage storage) ;
-
-    void delete(Storage storage) ;
-
-    void createContainer(Container container) ;
+    void createContainer(Container conntaier) ;
 
     void deleteContainer(String nameContainer) ;
 }

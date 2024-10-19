@@ -1,6 +1,19 @@
 version: "3.8"
 
 services:
+  jobdb:
+    image: mariadb:latest
+    container_name: mariadb_job
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_USER: admin1
+      MARIADB_PASSWORD: root3
+      MARIADB_DATABASE: job
+    ports:
+      - '3311:3306'
+    volumes:
+      - db_job_data:/var/lib/mysql
 
   userdb:
     image: mariadb:latest
@@ -15,6 +28,7 @@ services:
       - '3309:3306'
     volumes:
       - db_user_data:/var/lib/mysql
+
   formationdb:
     image: mariadb:latest
     container_name: mariadb_formation
@@ -28,6 +42,7 @@ services:
       - '3307:3306'
     volumes:
       - db_formation_data:/var/lib/mysql
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4
     environment:
@@ -44,15 +59,15 @@ services:
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
     container_name: azurite
-    command: azurite-blob --blobHost 0.0.0.0
+    command: azurite-blob --blobHost 0.0.0.0 --location /data
     ports:
       - '10000:10000'
     volumes:
       - azurite_data:/data
+
 volumes:
+  db_job_data:
   db_user_data:
   db_formation_data:
   keycloak_data:
   azurite_data:
-
-
