@@ -17,10 +17,11 @@ public class Lesson {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  int id;
     private  String title;
+    private String containername;
     @ManyToOne
     private  Course course;
-    @OneToMany(mappedBy = "lesson")
-    private  List<Slide> slides;
+    @OneToMany(mappedBy = "lesson",cascade = CascadeType.ALL,orphanRemoval = true)
+    private  List<Slide> slides  ;
 
 
 }

@@ -13,14 +13,19 @@ import net.corilus.courseservice.modal.User;
 import net.corilus.courseservice.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional
 public class CourseServiceImpl implements CourseService {
     @Autowired
     CourseRepository courseRepository;
@@ -33,18 +38,34 @@ public class CourseServiceImpl implements CourseService {
     @Value("${azure.storage.connection.string}")
     private String azureStorageConnectionString;
 
-    @Override
-    public String createCourse(CourseDto courseDto, MultipartFile videoFile, MultipartFile imageFile) throws IOException {
-        String videoPath = uploadFileToAzure(videoFile, "video");
-        String imagePath = uploadFileToAzure(imageFile, "picture");
+
+    public ResponseEntity<String> addCourse(CourseDto courseDto) throws IOException {
+
+
+
         List<User> availableExperts = userClient.getAvailableExperts(courseDto.getSpeciality());
-        int expertId = availableExperts.get(0).getId();
 
+        String videoPath = uploadFileToAzure(courseDto.getVideoFile(), "video", containerName);
+        if (videoPath == null || videoPath.isEmpty()) {
+            throw new IOException("Failed to upload video file to Azure.");
+        }
 
+        String imagePath = uploadFileToAzure(courseDto.getImageFile(), "picture", containerName);
+        if (imagePath == null || imagePath.isEmpty()) {
+            throw new IOException("Failed to upload image file to Azure.");
+        }
 
-        Course course = convertToEntity(courseDto, videoPath, imagePath,expertId);
+        Course course;
+        if (availableExperts.isEmpty()) {
+            course = convertToEntityCourse(courseDto, videoPath, imagePath, null, Status.PENDING);
+        } else {
+            int expertId = availableExperts.get(0).getId();
+            course = convertToEntityCourse(courseDto, videoPath, imagePath, expertId, Status.INPROGRESS);
+        }
+
         courseRepository.save(course);
-        return "success";
+
+        return new ResponseEntity<>("Course added successfully", HttpStatus.OK);
     }
 
     @Override
@@ -67,7 +88,9 @@ public class CourseServiceImpl implements CourseService {
         return userClient.getAvailableExperts(specialityName);
     }
 
-    private Course convertToEntity(CourseDto courseDto, String videoPath, String imagePath,int expertId) {
+
+
+    private Course convertToEntityCourse(CourseDto courseDto, String videoPath, String imagePath, Integer expertId, Status status) {
         return Course.builder()
                 .title(courseDto.getTitle())
                 .price(courseDto.getPrice())
@@ -77,25 +100,29 @@ public class CourseServiceImpl implements CourseService {
                 .image(imagePath)
                 .speciality(courseDto.getSpeciality())
                 .level(courseDto.getLevel())
-                .status(Status.INPROGRESS)
+                .status(status)
                 .expertId(expertId)
+                .language(courseDto.getLanguage())
+                .owner(courseDto.getOwner())
                 .build();
     }
-
-    private String uploadFileToAzure(MultipartFile file, String directory) throws IOException {
+    @Override
+    public String uploadFileToAzure(MultipartFile file, String directory, String containerName) throws IOException {
         BlobContainerClient containerClient = getBlobContainerClient(containerName);
-        // Chemin de fichier unique avec dossier approprié
         String uniqueFileName = directory + "/" + file.getOriginalFilename();
+        System.out.println("uniqueFileName = " + uniqueFileName);
         BlobClient blobClient = containerClient.getBlobClient(uniqueFileName);
         blobClient.upload(file.getInputStream(), file.getSize(), true);
-        return blobClient.getBlobUrl();
-    }
 
-    private BlobContainerClient getBlobContainerClient(String containerName) {
+        return uniqueFileName;
+    }
+    @Override
+    public BlobContainerClient getBlobContainerClient(String containerName) {
         return new BlobContainerClientBuilder()
                 .connectionString(azureStorageConnectionString)
                 .containerName(containerName)
                 .buildClient();
     }
+
 
 }

@@ -2,6 +2,7 @@ package net.corilus.courseservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.corilus.courseservice.enums.Language;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,10 @@ public class Course {
     private  String reasonForRefusal;
     private  String descriptiveVideo ;
     private String image;
+    private String containername;
+    private String owner;
+    @Enumerated(EnumType.STRING)
+    private Language language ;
     private  String speciality ;
     @Enumerated(EnumType.STRING)
     private   Status status ;

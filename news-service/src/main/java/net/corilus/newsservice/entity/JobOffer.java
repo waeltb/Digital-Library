@@ -36,6 +36,8 @@ public class JobOffer {
     private String salaryRange;
     private String logo;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Date dateOfCreation ;
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date endDateForSending ;
     @OneToMany(mappedBy = "jobOffer")
     private List<JobApplication > jobApplications;

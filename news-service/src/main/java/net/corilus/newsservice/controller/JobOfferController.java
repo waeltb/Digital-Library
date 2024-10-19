@@ -90,6 +90,13 @@ public class JobOfferController {
     public ResponseEntity<?> getExperienceLevels(){
         return ResponseEntity.ok(jobOfferService.getExperienceLevels());
     }
+    @GetMapping("/getAllCompanies")
+    public List<String> getAllCompanies() {
+        return jobOfferService.getAllCompanies();
+    }  @GetMapping( "/getAllLocations")
+    public List<String> getAllLocations() {
+        return jobOfferService.getAllDistinctLocations();
+    }
 
 
 }

@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="course-service" />
         <module name="news-service" />
+        <module name="chat-service" />
         <module name="user-service" />
         <module name="discovery-service" />
         <module name="gateway-service" />
@@ -20,6 +21,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="chat-service" options="-parameters" />
       <module name="config-service" options="-parameters" />
       <module name="course-service" options="-parameters" />
       <module name="discovery-service" options="-parameters" />

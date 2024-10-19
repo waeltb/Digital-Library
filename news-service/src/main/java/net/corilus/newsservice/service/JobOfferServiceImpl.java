@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -51,6 +52,7 @@ public class JobOfferServiceImpl implements JobOfferService {
                 .logo(imagePath)
                 .experienceLevel(jobOfferDto.getExperienceLevel())
                 .endDateForSending(jobOfferDto.getEndDateForSending())
+                .dateOfCreation(new Date())
                 .build();
     }
 
@@ -85,6 +87,7 @@ public class JobOfferServiceImpl implements JobOfferService {
                     .logo(imageUrl)
                     .categories(jobOffer.getCategories())
                     .company(jobOffer.getCompany())
+                    .dateOfCreation(jobOffer.getDateOfCreation())
                     .build();
         } catch (UnsupportedEncodingException e) {
             // Gérer l'exception de manière appropriée, par exemple :
@@ -165,5 +168,15 @@ public class JobOfferServiceImpl implements JobOfferService {
     public JobOfferDto getJobOfferById(Long id)  {
         JobOffer jobOffer = jobOfferRepository.findById(id).orElse(null);
         return convertToDto(jobOffer);
+    }
+
+    @Override
+    public List<String> getAllCompanies() {
+        return jobOfferRepository.findAllDistinctCompanies();
+    }
+
+    @Override
+    public List<String> getAllDistinctLocations() {
+        return jobOfferRepository.findAllDistinctLocations();
     }
 }

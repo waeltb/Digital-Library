@@ -31,4 +31,6 @@ public interface JobOfferService {
     List<Categories> getCategories();
     List<ExperienceLevel> getExperienceLevels();
     JobOfferDto getJobOfferById(Long id) ;
+    List<String> getAllCompanies();
+    List<String> getAllDistinctLocations();
 }

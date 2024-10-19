@@ -1,5 +1,5 @@
 package net.corilus.courseservice.entity;
 
 public enum Status {
-    INPROGRESS,REFUSE,ACCEPTED
+    INPROGRESS,REFUSE,ACCEPTED,PENDING
 }

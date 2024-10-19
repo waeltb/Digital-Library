@@ -11,10 +11,12 @@ import java.util.Optional;
 @Value.Immutable
 @JsonDeserialize(as = ImmutableUserDto.class)
 public interface UserDto {
+
      String firstName();
      String lastName();
      String email();
      String username();
+     String photoprofile();
      Optional<String> password();
      String mobileNumber();
      Optional<Date> availabilityDate();

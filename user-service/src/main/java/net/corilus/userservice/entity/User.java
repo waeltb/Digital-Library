@@ -37,6 +37,7 @@ public class User {
     @NotBlank(message = " username is required and cannot be blank.")
     @Size(min=3,max = 25,message = " username length min is 3 and max is 25")
     private String username;
+    private String photoprofile;
     @Size(min = 8,max = 22,message = "password should be min 8 caracters and 22 caracters")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$", message = "Password must contain at least one lowercase letter, one uppercase letter, and one number.")
     private String password;
