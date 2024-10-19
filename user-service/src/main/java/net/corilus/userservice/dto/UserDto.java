@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface UserDto {
 
      String firstName();
+
      String lastName();
      String email();
      String username();
