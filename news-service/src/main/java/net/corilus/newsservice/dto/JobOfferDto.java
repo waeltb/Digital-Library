@@ -26,4 +26,5 @@ public interface JobOfferDto {
     Categories getCategories();
     Date getEndDateForSending();
     String getContainername();
+    Date getDateOfCreation();
 }

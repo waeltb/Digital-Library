@@ -10,6 +10,7 @@ import net.corilus.userservice.entity.User;
 import net.corilus.userservice.exception.EmailExistsExecption;
 import net.corilus.userservice.securityconfig.KeycloakConfig;
 import net.corilus.userservice.service.UserServiceImpl;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -122,5 +124,13 @@ public class UserController {
     public UserDto getUserById(@PathVariable("idUser") Long idUser){
         return  userService.getUserById(idUser);
     }
+
+
+    @GetMapping("/current-user")
+    public String getCurrentUserId() {
+        String ownerId = userService.getCurrentUserId();
+        return ownerId;
+    }
+
 
 }

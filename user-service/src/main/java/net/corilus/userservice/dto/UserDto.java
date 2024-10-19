@@ -17,6 +17,7 @@ public interface UserDto {
      String lastName();
      String email();
      String username();
+     String photoprofile();
      Optional<String> password();
      String mobileNumber();
      Optional<Date> availabilityDate();

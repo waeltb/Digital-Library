@@ -14,4 +14,8 @@ public interface UserClient {
     List<Speciality> getSpeciality();
     @GetMapping(value="/user/availableexperts/{specialityName}")
     List<User> getAvailableExperts(@PathVariable String specialityName);
+
+    @GetMapping("/user/current-user")
+     String getCurrentUserId() ;
+
 }

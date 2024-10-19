@@ -43,18 +43,38 @@ services:
     volumes:
       - db_formation_data:/var/lib/mysql
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0.4
+  phpmyadmin_formation:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_formation
+    restart: always
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      PMA_HOST: formationdb
+      PMA_USER: adminer
+      PMA_PASSWORD: root1
     ports:
-      - "8080:8080"
-    command:
-      - start-dev
-      - --features=declarative-ui
-    volumes:
-      - keycloak_data:/opt/keycloak/data
+      - '8081:80'
+
+  phpmyadmin_job:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_job
+    restart: always
+    environment:
+      PMA_HOST: jobdb
+      PMA_USER: admin1
+      PMA_PASSWORD: root3
+    ports:
+      - '8082:80'
+
+  phpmyadmin_user:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_user
+    restart: always
+    environment:
+      PMA_HOST: userdb
+      PMA_USER: adminers
+      PMA_PASSWORD: root2
+    ports:
+      - '8083:80'
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite

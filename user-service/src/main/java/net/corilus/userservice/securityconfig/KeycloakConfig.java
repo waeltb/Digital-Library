@@ -19,13 +19,13 @@ public class KeycloakConfig {
         if(keycloak == null){
 
             keycloak = KeycloakBuilder.builder()
-                    .serverUrl("http://localhost:8080/")
-                    .realm("corilus")
+                    .serverUrl("http://localhost:9999/")
+                    .realm("pfe")
                     .grantType(OAuth2Constants.PASSWORD)
                     .username("super-admin")
                     .password("superadmin")
                     .clientId("login-app")
-                    .clientSecret("XeZM5aBXDTrdn6eqeR0TUhZRSTlibOF1")
+                    .clientSecret("4NurRgfPV88PKKi9PqfOeuEja2WeaKth")
                     .build();
         }
         return keycloak;

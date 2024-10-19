@@ -57,7 +57,9 @@
     import java.io.InputStream;
 
     import java.util.*;
-
+    import org.keycloak.KeycloakPrincipal;
+    import org.keycloak.KeycloakSecurityContext;
+    import org.springframework.security.core.context.SecurityContextHolder;
     @Service
     @Slf4j
     @RequiredArgsConstructor
@@ -127,12 +129,12 @@
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             // Créez le corps de la requête
             String body = "grant_type=password&username=" + authenticationRequest.getUsername() + "&password=" + authenticationRequest.getPassword() +
-                    "&client_id=login-app&client_secret=XeZM5aBXDTrdn6eqeR0TUhZRSTlibOF1";
+                    "&client_id=login-app&client_secret=4NurRgfPV88PKKi9PqfOeuEja2WeaKth";
             // Créez l'objet HttpEntity avec les en-têtes et le corps
             HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
             // Envoyez la requête POST
             ResponseEntity<String> responseEntity = restTemplate.exchange(
-                    "http://localhost:8080/realms/corilus/protocol/openid-connect/token",
+                    "http://localhost:9999/realms/pfe/protocol/openid-connect/token",
                     HttpMethod.POST,
                     requestEntity,
                     String.class
@@ -150,13 +152,13 @@
             try {
                 UserRepresentation userRep= mapUserRep(userDto);
                 Keycloak keycloak = KeycloakConfig.getInstance();
-                List<UserRepresentation> usernameRepresentations = keycloak.realm("corilus").users().searchByUsername(userDto.username(),true);
-                List<UserRepresentation> emailRepresentations = keycloak.realm("corilus").users().searchByEmail(userDto.email(),true);
+                List<UserRepresentation> usernameRepresentations = keycloak.realm("pfe").users().searchByUsername(userDto.username(),true);
+                List<UserRepresentation> emailRepresentations = keycloak.realm("pfe").users().searchByEmail(userDto.email(),true);
 
                 if(!(usernameRepresentations.isEmpty() && emailRepresentations.isEmpty())){
                     throw new EmailExistsExecption("username or email already exists");
                 }
-                Response response = keycloak.realm("corilus").users().create(userRep);
+                Response response = keycloak.realm("pfe").users().create(userRep);
 
                 User userEntity = convertUserToEntity(userDto);
                 userRepository.save(userEntity);
@@ -585,7 +587,10 @@
             String fileName = username + ".png";
 
 
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("userprofile");
+
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("wael");
+
             BlobClient blobClient = containerClient.getBlobClient(fileName);
 
 
@@ -607,7 +612,7 @@
         @Override
         public ResponseEntity<Resource> getImage(String username) {
             String fileName = username + ".png";
-            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("wael");
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("userprofile");
             BlobClient blobClient = containerClient.getBlobClient(fileName);
 
             // Download the blob to an InputStream
@@ -661,6 +666,7 @@
 
         private UserDto mapUserEntityToDto(User user){
             return ImmutableUserDto.builder()
+
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .email(user.getEmail())
@@ -670,7 +676,18 @@
 
 
         }
+        public String getCurrentUserId() {
+            KeycloakPrincipal<?> principal = (KeycloakPrincipal<?>) SecurityContextHolder
+                    .getContext()
+                    .getAuthentication()
+                    .getPrincipal();
 
+            KeycloakSecurityContext keycloakSecurityContext = principal.getKeycloakSecurityContext();
+            String userId = keycloakSecurityContext.getToken().getSubject();
+            System.out.println("show the user connected");
+            System.out.println("show the user connected ****** "+userId);
+            return userId;
+        }
 
 
     }
