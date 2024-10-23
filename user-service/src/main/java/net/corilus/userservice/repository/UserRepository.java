@@ -11,4 +11,5 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User,Long> {
     List<User> findByRole_NameAndAvailabilityDateLessThanEqualAndSpeciality_NameOrderByAvailabilityDate(String roleName, Date currentDate, String specialityName);
     User findByUsername(String username);
+
 }

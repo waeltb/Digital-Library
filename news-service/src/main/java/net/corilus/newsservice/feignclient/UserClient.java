@@ -10,5 +10,5 @@ public interface UserClient {
     @GetMapping("/user/getUserById/{idUser}")
     User getUserById(@PathVariable("idUser") Long idUser);
     @GetMapping("/user/getUser/{username}")
- User getUser(@PathVariable("username") String username);
+    User getUser(@PathVariable("username") String username);
     }

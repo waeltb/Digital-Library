@@ -1,4 +1,9 @@
 package net.corilus.userservice.service;
+
+
+
+
+
 import org.springframework.core.io.Resource;
 
 import org.springframework.http.ResponseEntity;
@@ -9,4 +14,5 @@ import java.io.IOException;
 public interface ProfileService {
 void uploadImage(MultipartFile file,String username) throws IOException;
 ResponseEntity<Resource> getImage(String username);
+
 }

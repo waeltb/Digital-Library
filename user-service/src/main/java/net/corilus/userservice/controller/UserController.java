@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,21 +43,24 @@ public class UserController {
         String response = userService.login(authenticationRequest);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/admin-only")
+    @PreAuthorize("hasRole('admin')")
+    public String getAdminData() {
+        return "This is admin data.";
+    }
+    @GetMapping("/current-user-connected")
+    public ResponseEntity<String> currentUserConnected(@AuthenticationPrincipal Jwt jwt) {
+
+        return ResponseEntity.ok("response of testing current user auth "+jwt.getSubject());
+    }
     @PostMapping("/addUser")
     public ResponseEntity<?> adduser(  @RequestBody @Valid UserDto userDto){
 
-        try {
+
             return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
-        }
-        catch (EmailExistsExecption e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);//409
-        }
-        catch (Exception e) {
-            System.out.println("test error in exception");
-            System.out.println(e.getClass().getName());
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>("An unexpected error occurred try again", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+
+
 
     }
     @PostMapping("/addexpert/{specialityName}")
@@ -126,11 +131,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/current-user")
-    public String getCurrentUserId() {
-        String ownerId = userService.getCurrentUserId();
-        return ownerId;
-    }
+
 
 
 }
