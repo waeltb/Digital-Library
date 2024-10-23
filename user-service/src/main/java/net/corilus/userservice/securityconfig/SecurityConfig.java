@@ -37,13 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
 
-                .authorizeHttpRequests(a -> a.requestMatchers("/user/**","/profile/**","/azure/**", "/role/**", "/speciality/**","/publication/**","/jobOffer/**","/jobApplication/**","/lesson/**","/message/**").permitAll())
-
-
-                .authorizeHttpRequests(a -> a.requestMatchers("/user/**", "/azure", "/role/**", "/speciality/**", "/course/**").permitAll())
-
-                .authorizeHttpRequests(a -> a.requestMatchers("/user/**","/profile/**","/azure/**", "/role/**", "/speciality/**", "/course/**","/publication/**","/jobOffer/**").permitAll())
-
+                .authorizeHttpRequests(a -> a.requestMatchers("/user/login","/user/addUser").permitAll())
 
                 .authorizeHttpRequests(a -> a.anyRequest().authenticated())
                 .oauth2ResourceServer(ors -> ors.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))

@@ -1,7 +1,7 @@
 package net.corilus.userservice.service;
 
 
-public interface ProfileService {
+
 
 
 import org.springframework.core.io.Resource;
