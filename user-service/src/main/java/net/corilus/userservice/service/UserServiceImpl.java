@@ -1,3 +1,4 @@
+
 package net.corilus.userservice.service;
 
 
@@ -48,9 +49,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+
     @Autowired
     RoleServiceImpl roleService;
     @Autowired
+
     private RestTemplate restTemplate;
     @Autowired
     private UserRepository userRepository;
@@ -89,6 +92,7 @@ public class UserServiceImpl implements UserService {
 
         return responseBody;
     }
+
 
     @Override
     public String createUser(UserDto userDto) {
@@ -338,6 +342,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Override
     public List<User> getAvailableExperts(String specialityName) {
         Date currentDate = new Date();
@@ -347,6 +352,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void uploadImage(MultipartFile file, String username) throws IOException {
         String fileName = username + ".png";
+
 
         BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient("wael");
         BlobClient blobClient = containerClient.getBlobClient(fileName);
@@ -375,11 +381,13 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
+
     @Override
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id).orElse(null);
         return mapUserEntityToDto(user);
     }
+
 
     private User convertExpertToEntity(UserDto userDto) {
         Role role  = roleRepository.findByName("expert");
@@ -419,6 +427,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
     }
+
 
 
 }
