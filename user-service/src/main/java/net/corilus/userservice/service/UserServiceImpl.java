@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String createUser(UserDto userDto) {
-        String user ="admin";
+        String user ="user";
 
             UserRepresentation userRep= mapUserRep(userDto);
             Keycloak keycloak = KeycloakConfig.getInstance();

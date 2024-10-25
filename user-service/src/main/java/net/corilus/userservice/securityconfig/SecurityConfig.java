@@ -1,6 +1,7 @@
 package net.corilus.userservice.securityconfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -37,7 +39,7 @@ public class SecurityConfig {
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
 
-                .authorizeHttpRequests(a -> a.requestMatchers("/user/login","/user/addUser").permitAll())
+                .authorizeHttpRequests(a -> a.requestMatchers("/user/login","/user/addUser","/user/admin-only").permitAll())
 
                 .authorizeHttpRequests(a -> a.anyRequest().authenticated())
                 .oauth2ResourceServer(ors -> ors.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))
@@ -50,6 +52,7 @@ public class SecurityConfig {
         defaultMethodSecurityExpressionHandler.setDefaultRolePrefix("");
         return defaultMethodSecurityExpressionHandler;
     }
+
 
     @Bean
     public RestTemplate restTemplate() {

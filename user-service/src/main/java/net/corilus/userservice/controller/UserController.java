@@ -48,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
     @GetMapping("/admin-only")
-    @PreAuthorize("hasRole('admin')")
+   // @PreAuthorize("hasRole('admin')")
     public String getAdminData() {
         return "This is admin data.";
     }
